@@ -12,7 +12,7 @@ age  := props.MustInt("age")     // Returns int
 // See ./test/test1.ini
 
 props := properties.LoadIni(IniOptions{
-	Filename:           "./test/test1.ini",
+    Filename:           "./test/test1.ini",
     ConcatSectionName:  true,
 })
 

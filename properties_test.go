@@ -95,3 +95,13 @@ func TestLoaderIniConcatSection(t *testing.T) {
 		t.Errorf("expected protocol value %s, but got %s", "http", protocol)
 	}
 }
+
+func TestKeysWithPrefix(t *testing.T) {
+	props := New("aa.a", "1", "bb.b", "2", "aa.c", "3", "bb.d", "4")
+
+	keys := props.KeysWithPrefix("aa.")
+
+	if len(keys) != 2 {
+		t.Errorf("expected two keys with a prefix `aa.`, but got %d", len(keys))
+	}
+}
