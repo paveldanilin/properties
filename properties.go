@@ -3,6 +3,7 @@ package properties
 import (
 	"errors"
 	"strconv"
+	"strings"
 )
 
 var (
@@ -13,6 +14,7 @@ type Properties struct {
 	props map[string]string
 }
 
+// Creates a new properties struct from key/value pairs
 func New(pairs ...string) *Properties {
 	pairsNum := len(pairs)
 	if pairsNum > 0 && pairsNum%2 != 0 {
@@ -23,9 +25,9 @@ func New(pairs ...string) *Properties {
 	pairsNum = len(pairs)
 	props := make(map[string]string)
 	for i := 0; i < pairsNum; i = i + 2 {
-		name := pairs[i]
+		key := pairs[i]
 		value := pairs[i+1]
-		props[name] = value
+		props[key] = value
 	}
 
 	return &Properties{
@@ -33,50 +35,50 @@ func New(pairs ...string) *Properties {
 	}
 }
 
-func (props *Properties) SetProperty(name string, value string) {
-	props.props[name] = value
+func (props *Properties) SetProperty(key string, value string) {
+	props.props[key] = value
 }
 
-func (props *Properties) GetProperty(name string) (string, error) {
-	if v, ok := props.props[name]; ok {
+func (props *Properties) GetProperty(key string) (string, error) {
+	if v, ok := props.props[key]; ok {
 		return v, nil
 	}
 	return "", ErrPropertyNotFound
 }
 
-func (props *Properties) Property(name string, def string) string {
-	if props.HasProperty(name) {
-		return props.props[name]
+func (props *Properties) Property(key string, def string) string {
+	if props.HasProperty(key) {
+		return props.props[key]
 	}
 	return def
 }
 
-func (props *Properties) MustString(name string) string {
-	return props.Property(name, "")
+func (props *Properties) MustString(key string) string {
+	return props.Property(key, "")
 }
 
-func (props *Properties) String(name string, def string) string {
-	return props.Property(name, def)
+func (props *Properties) String(key string, def string) string {
+	return props.Property(key, def)
 }
 
-func (props *Properties) GetBool(name string) (bool, error) {
-	v, err := props.GetProperty(name)
+func (props *Properties) GetBool(key string) (bool, error) {
+	v, err := props.GetProperty(key)
 	if err != nil {
 		return false, err
 	}
 	return strconv.ParseBool(v)
 }
 
-func (props *Properties) MustBool(name string) bool {
-	v, err := props.GetBool(name)
+func (props *Properties) MustBool(key string) bool {
+	v, err := props.GetBool(key)
 	if err != nil {
 		panic(err)
 	}
 	return v
 }
 
-func (props *Properties) Bool(name string, def bool) bool {
-	v, err := props.GetBool(name)
+func (props *Properties) Bool(key string, def bool) bool {
+	v, err := props.GetBool(key)
 	if err != nil {
 		if errors.Is(err, ErrPropertyNotFound) {
 			return def
@@ -86,24 +88,24 @@ func (props *Properties) Bool(name string, def bool) bool {
 	return v
 }
 
-func (props *Properties) GetInt(name string) (int, error) {
-	v, err := props.GetProperty(name)
+func (props *Properties) GetInt(key string) (int, error) {
+	v, err := props.GetProperty(key)
 	if err != nil {
 		return 0, err
 	}
 	return strconv.Atoi(v)
 }
 
-func (props *Properties) MustInt(name string) int {
-	v, err := props.GetInt(name)
+func (props *Properties) MustInt(key string) int {
+	v, err := props.GetInt(key)
 	if err != nil {
 		panic(err)
 	}
 	return v
 }
 
-func (props *Properties) Int(name string, def int) int {
-	v, err := props.GetInt(name)
+func (props *Properties) Int(key string, def int) int {
+	v, err := props.GetInt(key)
 	if err != nil {
 		if errors.Is(err, ErrPropertyNotFound) {
 			return def
@@ -113,24 +115,24 @@ func (props *Properties) Int(name string, def int) int {
 	return v
 }
 
-func (props *Properties) GetFloat(name string) (float64, error) {
-	v, err := props.GetProperty(name)
+func (props *Properties) GetFloat(key string) (float64, error) {
+	v, err := props.GetProperty(key)
 	if err != nil {
 		return 0, err
 	}
 	return strconv.ParseFloat(v, 64)
 }
 
-func (props *Properties) MustFloat(name string) float64 {
-	v, err := props.GetFloat(name)
+func (props *Properties) MustFloat(key string) float64 {
+	v, err := props.GetFloat(key)
 	if err != nil {
 		panic(err)
 	}
 	return v
 }
 
-func (props *Properties) Float(name string, def float64) float64 {
-	v, err := props.GetFloat(name)
+func (props *Properties) Float(key string, def float64) float64 {
+	v, err := props.GetFloat(key)
 	if err != nil {
 		if errors.Is(err, ErrPropertyNotFound) {
 			return def
@@ -140,24 +142,24 @@ func (props *Properties) Float(name string, def float64) float64 {
 	return v
 }
 
-func (props *Properties) GetUint(name string) (uint64, error) {
-	v, err := props.GetProperty(name)
+func (props *Properties) GetUint(key string) (uint64, error) {
+	v, err := props.GetProperty(key)
 	if err != nil {
 		return 0, err
 	}
 	return strconv.ParseUint(v, 10, 64)
 }
 
-func (props *Properties) MustUint(name string) uint64 {
-	v, err := props.GetUint(name)
+func (props *Properties) MustUint(key string) uint64 {
+	v, err := props.GetUint(key)
 	if err != nil {
 		panic(err)
 	}
 	return v
 }
 
-func (props *Properties) Uint(name string, def uint64) uint64 {
-	v, err := props.GetUint(name)
+func (props *Properties) Uint(key string, def uint64) uint64 {
+	v, err := props.GetUint(key)
 	if err != nil {
 		if errors.Is(err, ErrPropertyNotFound) {
 			return def
@@ -167,15 +169,27 @@ func (props *Properties) Uint(name string, def uint64) uint64 {
 	return v
 }
 
-func (props *Properties) HasProperty(name string) bool {
-	_, ok := props.props[name]
+func (props *Properties) HasProperty(key string) bool {
+	_, ok := props.props[key]
 	return ok
 }
 
+// Keys returns all property keys
 func (props *Properties) Keys() []string {
 	keys := make([]string, len(props.props))
 	for k := range props.props {
 		keys = append(keys, k)
+	}
+	return keys
+}
+
+// KeysWithPrefix returns an array of property keys that start with prefix
+func (props *Properties) KeysWithPrefix(prefix string) []string {
+	keys := []string{}
+	for k := range props.props {
+		if strings.HasPrefix(k, prefix) {
+			keys = append(keys, k)
+		}
 	}
 	return keys
 }
