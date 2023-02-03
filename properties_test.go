@@ -105,3 +105,88 @@ func TestKeysWithPrefix(t *testing.T) {
 		t.Errorf("expected two keys with a prefix `aa.`, but got %d", len(keys))
 	}
 }
+
+func TestNewFromMap(t *testing.T) {
+	props := NewFromMap(map[string]string{
+		"message": "Hello!",
+	})
+
+	if props.MustString("message") != "Hello!" {
+		t.Errorf("expected value `%s`, but got `%s`", "Hello!", props.MustString("message"))
+	}
+}
+
+func TestRemoveProperty(t *testing.T) {
+
+	props := New()
+
+	props.SetProperty("a", "11")
+	props.SetProperty("b", "22")
+	props.SetProperty("c", "33")
+
+	props.RemoveProperty("b")
+	props.RemoveProperty("unknown")
+
+	if props.Size() != 2 {
+		t.Errorf("expected size is 2, but got %d", props.Size())
+	}
+}
+
+func TestInt(t *testing.T) {
+	props := NewFromMap(map[string]string{
+		"a": "2",
+		"b": "3",
+	})
+
+	var a, b int
+
+	if v, err := props.Int("a", 0); err == nil {
+		a = v
+	} else {
+		t.Error(err)
+	}
+
+	if v, err := props.Int("b", 0); err == nil {
+		b = v
+	} else {
+		t.Error(err)
+	}
+
+	if a+b != 5 {
+		t.Errorf("expected value is 5, but got %d", a+b)
+	}
+}
+
+func TestGetWithPrefix(t *testing.T) {
+	props := NewFromMap(map[string]string{
+		"some.property": "abcd",
+		"log.level":     "trace",
+		"log.format":    "txt",
+		"log.layout":    "{{time}} {{msg}}\n",
+		"some.value":    "331",
+	})
+
+	props = props.GetWithPrefix("log.")
+
+	if props.Size() != 3 {
+		t.Errorf("expected size is 3, but got %d", props.Size())
+	}
+
+	requiredKeys := []string{"log.level", "log.layout", "log.format"}
+
+	if !props.Contains(requiredKeys) {
+		t.Errorf("expected value %v, but got %v", requiredKeys, props.Keys())
+	}
+}
+
+func TestContainsAny(t *testing.T) {
+	props := New()
+
+	props.SetProperty("prop.one", "one")
+	props.SetProperty("prop.two", "two")
+	props.SetProperty("prop.three", "three")
+
+	if !props.ContainsAny([]string{"a", "prop.two", "b"}) {
+		t.Errorf("not found expected key")
+	}
+}
