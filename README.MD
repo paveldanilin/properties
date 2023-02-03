@@ -13,7 +13,7 @@ props.KeysWithPrefix("prefix")         // []string
 props.GetWithPrefix("prefix")          // *Properties
 props.All()                            // map[string]string
 props.Contains([]string{"p1", "p2"})   // bool
-props.ConstainAny([]string{"p1", "p2"})// bool
+props.ContainsAny([]string{"p1", "p2"})// bool
 
 // Retusn value or panic
 v := props.MustString("name")  // Returns string
