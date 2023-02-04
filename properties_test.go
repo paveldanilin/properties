@@ -190,3 +190,26 @@ func TestContainsAny(t *testing.T) {
 		t.Errorf("not found expected key")
 	}
 }
+
+func TestMerge(t *testing.T) {
+	props1 := New("a", "1")
+	props2 := New("b", "2")
+	props3 := props1.Merge(props2, true)
+
+	if props3.Size() != 2 {
+		t.Errorf("expected size is 2, but got %d", props3.Size())
+	}
+
+	if !props3.Contains([]string{"a", "b"}) {
+		t.Errorf("must contains [a,b], but contains %v", props3.Keys())
+	}
+}
+
+func TestMergeKeepSameKeyValue(t *testing.T) {
+	props := New("a", "1").Merge(New("a", "2"), false)
+
+	a := props.String("a", "")
+	if a != "1" {
+		t.Errorf("expected value `1`, but got `%s`", a)
+	}
+}

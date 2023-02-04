@@ -262,3 +262,18 @@ func (props *Properties) ContainsAny(keys []string) bool {
 	}
 	return false
 }
+
+// Merge merges two property structs into a new one
+func (props *Properties) Merge(properties *Properties, overwriteSameKeys bool) *Properties {
+	newProps := NewFromMap(props.All())
+	for k, v := range properties.All() {
+		if newProps.HasProperty(k) {
+			if overwriteSameKeys {
+				newProps.SetProperty(k, v)
+			}
+		} else {
+			newProps.SetProperty(k, v)
+		}
+	}
+	return newProps
+}
