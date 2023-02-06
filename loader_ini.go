@@ -9,12 +9,14 @@ import (
 type IniOptions struct {
 	Filename          string
 	ConcatSectionName bool
+	ConcatChar        string
 }
 
 func (opts *IniOptions) Options() map[string]interface{} {
 	return map[string]interface{}{
 		"filename":          opts.Filename,
 		"concatSectionName": opts.ConcatSectionName,
+		"concatChar":        opts.ConcatChar,
 	}
 }
 
@@ -25,6 +27,11 @@ func LoadIni(options IniOptions) (*Properties, error) {
 		return nil, err
 	}
 
+	concatChar := "."
+	if len(options.ConcatChar) == 0 {
+		concatChar = options.ConcatChar
+	}
+
 	props := New()
 
 	for _, section := range cfg.Sections() {
@@ -32,7 +39,7 @@ func LoadIni(options IniOptions) (*Properties, error) {
 			k := key.Name()
 			if len(k) > 0 {
 				if options.ConcatSectionName {
-					k = section.Name() + "." + k
+					k = section.Name() + concatChar + k
 				}
 				props.SetProperty(strings.ToLower(k), key.Value())
 			}
