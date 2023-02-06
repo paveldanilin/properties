@@ -1,6 +1,7 @@
 package properties
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -211,5 +212,25 @@ func TestMergeKeepSameKeyValue(t *testing.T) {
 	a := props.String("a", "")
 	if a != "1" {
 		t.Errorf("expected value `1`, but got `%s`", a)
+	}
+}
+
+func TestRenameKeys(t *testing.T) {
+	props := NewFromMap(map[string]string{
+		"prefix_1.a": "1",
+		"prefix_1.b": "2",
+		"prefix_2.a": "3",
+	})
+
+	prefix := "prefix_1."
+
+	rename := func(key string) string {
+		return strings.TrimPrefix(key, prefix)
+	}
+
+	propsNew := props.RenameKeys(rename)
+
+	if !propsNew.Contains([]string{"a", "b", "prefix_2.a"}) {
+		t.Errorf("expected keys [], but got %v", propsNew.Keys())
 	}
 }
